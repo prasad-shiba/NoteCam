@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">NoteCam</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="start_capture">Start Capture</string>
+    <string name="stop_capture">Stop Capture</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="capture">Capture</string>
+
+
+    <string name="camera_title">Turn on Camera permission</string>
+    <string name="camera_description">\"NoteCam\" requires the Camera permission to access the camera while using the app.</string>
+    <string name="camera_description_after_deny">\"NoteCam\" requires the Camera permission to access the camera while using the app.To allow Camera , Tap <b>Settings</b> > <b>Permissions</b>, and turn Camera on.</string>
+    <string name="location_title">Turn on Location permission</string>
+    <string name="location_description">\"NoteCam\" requires the Location permission to save photos from their captured location.</string>
+    <string name="location_description_after_deny">\"NoteCam\" requires the Location permission to save photos from their captured location.To allow Location , Tap <b>Settings</b> > <b>Permissions</b>, and turn Location on.</string>
+    <string name="storage_title">Turn on Storage permission</string>
+    <string name="storage_description">\"NoteCam\" requires the Storage permission to save the photos in your device.</string>
+    <string name="storage_description_after_deny">\"NoteCam\" requires the Storage permission to save the photos in your device.To allow Storage , Tap <b>Settings</b> > <b>Permissions</b>, and turn Storage on.</string>
+    <string name="exit">Exit</string>
+    <string name="settings">Settings</string>
+    <string name="allow">Allow</string>
+    <string name="deny">Deny</string>
+    <string name="accuracy">Accuracy:</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
+    <string name="time">Time:</string>
+    <string name="note">Note:</string>
+
+</resources>
