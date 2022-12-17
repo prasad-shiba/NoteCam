@@ -6,39 +6,48 @@ import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.TextPaint;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.StringRes;
+import androidx.camera.core.ImageProxy;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Locale;
 
 public final class Util {
+  public static final int REQUEST_PERMISSION_SETTING = 12;
   private static final String DIRECTORY_NAME = "My Note Camera";
 
   private Util() {}
 
-  public static Bitmap addWaterMark(
-      Bitmap src, boolean isLocation, double longitude, double latitude, float accuracy) {
+  public static Bitmap addWaterMark(Bitmap src, Location location) {
     int w = src.getWidth();
     int h = src.getHeight();
     Bitmap result = Bitmap.createBitmap(w, h, src.getConfig());
@@ -49,11 +58,6 @@ public final class Util {
     // for white rectangular draw
     Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     paint.setColor(Color.WHITE);
-    if (isLocation) {
-      canvas.drawRect(0, h - 550, w / 3, h, paint);
-    } else {
-      canvas.drawRect(0, h - 250, w / 3, h, paint);
-    }
 
     // for text draw
     TextPaint textPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
@@ -61,17 +65,29 @@ public final class Util {
     textPaint.setTextSize(80);
     textPaint.setWordSpacing(0.1F);
 
+    // order is important
+    // first white rectangle draw then written above white rectangle
+    if (location != null) {
+      canvas.drawRect(0, h - 550, 1000, h, paint);
+      canvas.drawText("Latitude : ", 50, h - 450, textPaint);
+      canvas.drawText("Longitude : ", 50, h - 350, textPaint);
+      canvas.drawText("Accuracy : ", 50, h - 250, textPaint);
+    } else {
+      canvas.drawRect(0, h - 250, 1000, h, paint);
+    }
+
     canvas.drawText("Time : " + getCurrentTime(), 50, h - 150, textPaint);
     canvas.drawText(
         "Note : " + Build.MODEL + "(" + Build.MANUFACTURER + ")", 50, h - 50, textPaint);
 
-    if (isLocation) {
-      canvas.drawText("Latitude : ", 50, h - 450, textPaint);
-      canvas.drawText("Longitude : ", 50, h - 350, textPaint);
-      canvas.drawText("Accuracy : ", 50, h - 250, textPaint);
-    }
-
     return result;
+  }
+
+  public static Bitmap getBitmap(ImageProxy imageProxy) {
+    ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
+    byte[] bytes = new byte[byteBuffer.capacity()];
+    byteBuffer.get(bytes);
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
   }
 
   public static boolean isPermissionGranted(Context context, String permission) {
@@ -85,14 +101,6 @@ public final class Util {
 
   public static boolean isLocationPermissionGranted(Context context) {
     return isPermissionGranted(context, Manifest.permission.ACCESS_COARSE_LOCATION);
-  }
-
-  public static boolean isWriteExternalStoragePermissionGranted(Context context) {
-    if (Build.VERSION_CODES.P >= Build.VERSION.SDK_INT) {
-      return isPermissionGranted(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    } else {
-      throw new RuntimeException("Max SDK version 28");
-    }
   }
 
   public static boolean isCameraPermissionGranted(Context context) {
@@ -217,10 +225,18 @@ public final class Util {
   }
 
   private boolean isAllPermissionGranted(Context context) {
-    boolean granted = isCameraPermissionGranted(context) && isLocationPermissionGranted(context);
-    if (Build.VERSION_CODES.P >= Build.VERSION.SDK_INT) {
-      granted = granted && isWriteExternalStoragePermissionGranted(context);
-    }
-    return granted;
+    return isCameraPermissionGranted(context) && isLocationPermissionGranted(context);
+  }
+
+  public static void createPermissionSnackBar(Activity activity, View view, @StringRes int text) {
+    Snackbar.make(view, text, Snackbar.LENGTH_LONG)
+        .setAction(R.string.settings, v -> openAppSettings(activity))
+        .show();
+  }
+
+  public static void openAppSettings(Activity activity) {
+    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+    intent.setData(Uri.parse("package:" + activity.getPackageName()));
+    ActivityCompat.startActivityForResult(activity, intent, REQUEST_PERMISSION_SETTING, null);
   }
 }
